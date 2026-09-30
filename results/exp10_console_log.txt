@@ -91,13 +91,41 @@ Statistical Pharmacology via Kakutani Dichotomy, Paper X
   Acceptance: the threshold rises monotonically with N and stays below alpha_c = 1/2, approaching it from below (0.131 -> 0.429)  PASS
   This is the honest form of the claim: alpha_c is an N -> infinity statement. At finite N there is no jump, only a crossover, and its position depends on N.
 
+[4b] The sub-threshold false-positive trap
+  A modulator that raises the exponent but does not carry it across alpha_c buys a
+  finite-size reprieve, not a phase change. Compare a weak modulator at alpha_eff = 0.42 with KMS-Tau-204 at alpha_eff = 0.72:
+                   state  alpha   K_N(1e3)   t_half(1e3)   K_N(1e5)   t_half(1e5)   collapse
+     hyperphosphorylated   0.30     8.6672         10.02    56.7402        0.0027   3.71e+03x
+          weak modulator   0.42     3.8502     1.812e+06     8.6897         9.471   1.91e+05x
+             KMS-Tau-204   0.72     1.7036      3.99e+08     1.7262     3.769e+08       1.06x
+  At the scale of a short-peptide assay (N = 1e3) the weak modulator looks like a complete block: 1.81e+06 h.
+  At the scale of a full-length protein or a cellular condensate (N = 1e5) the series diverges and it collapses to 9.47 h, as fast as the untreated 10 h at N = 1e3.
+  KMS-Tau-204 changes by a factor 1.058 over the same range, because above alpha_c the sum is bounded.
+
+  The exponent a stabiliser must actually reach: K_N(t_half = 100 h) = 7.7518, so K_tail* = 6.5483, and
+  alpha* = 0.51789 is where K_tail(alpha, infinity) meets it. For every alpha >= 0.5179 the half-time exceeds 100 h at ANY N;
+  below it the protection is finite-size only. Note alpha* > alpha_c: crossing the critical exponent is necessary but not sufficient.
+  Acceptance: the sub-threshold modulator loses a factor 1.91e+05 between N = 1e3 and 1e5 while the stabiliser loses 1.058, and alpha_c < alpha* = 0.5179 < 0.72  PASS
+
 [5] Abeta42 against Abeta40: the C-terminal hot spot alone
     peptide    K_hot      K_N   dG (kT)  t_half (h)
     Abeta42   1.0906   8.5543      8.50       13.31
     Abeta40   0.6633   8.1269      9.58       38.96
   Abeta42 nucleates 2.93x faster, from the two extra C-terminal residues alone; the tail exponent is identical in the two rows.
   Acceptance: the C-terminal hot spot alone separates the two peptides in the right direction, by 2.93x  PASS
-  The model attributes none of this to the tail, so it under-predicts the experimental gap; Abeta42 also differs from Abeta40 in its long-range contact order.
+
+  Two-factor decomposition. Factor (i) above holds the tail exponent fixed and gets 2.93x, well short of the
+  order of magnitude that is measured. Factor (ii) asks how much of the exponent the two extra residues would have
+  to buy, by stabilising the C-terminal turn, to close the gap. Inverting the model:
+   target ratio  alpha(Abeta40)  delta alpha  t_half(Abeta40)
+          2.93x          0.3000      +0.0000              39 h
+         10.00x          0.3073      +0.0073           133.1 h
+         20.00x          0.3117      +0.0117           266.2 h
+         50.00x          0.3179      +0.0179           665.6 h
+  So the experimentally reported order-of-magnitude separation needs the two residues to raise the exponent by
+  only 0.0073 to 0.0179, that is by 6.0% at most. The claim is modest, and it is testable:
+  it predicts a small but definite difference in the contact-order statistics of the two monomers, not only at the C-terminus.
+  Acceptance: closing the gap requires delta alpha < 0.05 in every case, so the tail contribution needed is small  PASS
 
 [6] ThT nucleation traces
    Tau-MTBR                healthy: t_half =   5.781e+08 h, F(120 h) = 0.000000
@@ -114,9 +142,12 @@ Output files (relative to the repository root):
    data/exp10_states.csv
    data/exp10_alpha_scan.csv
    data/exp10_tht.csv
+   data/exp10_false_positive_trap.csv
    figures/fig10_ad_tau_abeta_idp_stabilizer.png
    figures/fig10_ad_tau_abeta_idp_stabilizer.pdf
+   figures/fig10b_crossover_and_tht_kinetics.png
+   figures/fig10b_crossover_and_tht_kinetics.pdf
    results/exp10_console_log.txt
 
-runtime 4.4 s
+runtime 5.4 s
 OVERALL ACCEPTANCE: PASS

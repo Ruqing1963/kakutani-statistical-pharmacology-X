@@ -50,6 +50,7 @@ import math
 from dataclasses import dataclass, field
 
 import numpy as np
+from scipy.optimize import brentq
 
 # ----------------------------------------------------------------------------
 # Ensemble parameters
@@ -131,9 +132,10 @@ class State:
 
 HEALTHY = State("healthy", 0.85, "soluble monomer, long-range contacts intact")
 PATHOGENIC = State("hyperphosphorylated", 0.30, "pathological phosphorylation, paperclip fold lost")
+SUBTHRESHOLD = State("weak modulator", 0.42, "raises the exponent but not across alpha_c")
 STABILISED = State("KMS-Tau-204", 0.72, "kinetic ensemble stabiliser, fuzzy multi-site binding")
 CRITICAL = State("critical", ALPHA_C, "exactly at the Kakutani critical exponent")
-STATES = (HEALTHY, PATHOGENIC, STABILISED)
+STATES = (HEALTHY, PATHOGENIC, SUBTHRESHOLD, STABILISED)
 
 
 # ----------------------------------------------------------------------------
@@ -280,6 +282,43 @@ def alpha_from_slope(slope: float) -> float:
 
 
 # ----------------------------------------------------------------------------
+# The convergent side, in closed form (Proposition 2.2)
+# ----------------------------------------------------------------------------
+def k_tail_infinite(alpha: float, p0: float = P0, c: float = C_TAIL, n: int = 2_000_000) -> float:
+    """K_tail(alpha, infinity), for alpha > 1/2.
+
+    The sum to n is exact; the remainder is completed analytically using the two leading terms of
+    Proposition 2.1, whose tails are zeta(s) - H_n(s). What is neglected is the O(eps^4) part of
+    the remainder beyond n, which for alpha > 1/2 and n = 2e6 is below 1e-15.
+    """
+    if alpha <= 0.5:
+        return math.inf
+    from scipy.special import zeta as _zeta
+
+    i = np.arange(1, n + 1, dtype=float)
+    eps = c * i ** (-alpha)
+    h = hellinger_bernoulli(np.full(n, p0), p0 + eps)
+    a1, b1 = quadratic_coefficient(p0), cubic_coefficient(p0)
+    rem2 = float(_zeta(2 * alpha)) - float(np.sum(i ** (-2 * alpha)))
+    rem3 = float(_zeta(3 * alpha)) - float(np.sum(i ** (-3 * alpha)))
+    return float(np.sum(h)) + a1 * c ** 2 * rem2 - b1 * c ** 3 * rem3
+
+
+def k_tail_two_term(alpha: float, p0: float = P0, c: float = C_TAIL) -> float:
+    """Proposition 2.2: K_tail(alpha, infinity) = A zeta(2a) - c^3 B_1 zeta(3a) + O(c^4).
+
+    Summing the expansion of Proposition 2.1 term by term over eps_i = c i^(-alpha) gives
+    A_1 c^2 sum i^(-2a) - B_1 c^3 sum i^(-3a) + O(c^4 sum i^(-4a)), and each sum is a zeta value.
+    The relative error is therefore O(c^2), so the formula is useful below about c = 0.1 and not at
+    the physical c = 0.35, where the cubic term over-corrects.
+    """
+    from scipy.special import zeta as _zeta
+
+    a1, b1 = quadratic_coefficient(p0), cubic_coefficient(p0)
+    return a1 * c ** 2 * float(_zeta(2 * alpha)) - b1 * c ** 3 * float(_zeta(3 * alpha))
+
+
+# ----------------------------------------------------------------------------
 # Nucleation kinetics and the ThT trace
 # ----------------------------------------------------------------------------
 def barrier_kt(k_n: float, g0: float = G0_KT, lam: float = LAMBDA_KT) -> float:
@@ -294,9 +333,35 @@ def half_time_hours(k_n: float, g0: float = G0_KT, lam: float = LAMBDA_KT,
     return t0 * math.exp(barrier_kt(k_n, g0, lam))
 
 
+def k_n_for_half_time(t_half: float, g0: float = G0_KT, lam: float = LAMBDA_KT,
+                      t0: float = T0_HOURS) -> float:
+    """Invert the barrier law: the K_N at which the half-time equals t_half."""
+    return (g0 - math.log(t_half / t0)) / lam
+
+
+def safe_exponent(pep: Peptide, t_ref: float = 100.0, p0: float = P0, c: float = C_TAIL) -> float:
+    """The smallest exponent alpha* such that t_half > t_ref at *every* N, however large.
+
+    Above alpha_c the tail sum converges, so K_N is bounded by K_hot + K_tail(alpha, infinity) for
+    all N. Solving K_hot + K_tail(alpha, infinity) = K_N(t_ref) gives the exponent a stabiliser
+    must actually reach: anything above it is safe at any system size, anything below it only looks
+    safe until the assay is made larger.
+    """
+    k_star = k_n_for_half_time(t_ref) - float(hot_spot_terms(pep, p0).sum())
+    f = lambda a: k_tail_infinite(a, p0, c, n=400_000) - k_star
+    return float(brentq(f, 0.5005, 0.95, xtol=1e-7))
+
+
 def tht_curve(t: np.ndarray, t_half: float, k: float = K_THT) -> np.ndarray:
-    """F(t) = [1 + exp(-k (t - t_half))]^(-1), the normalised ThT fluorescence trace."""
-    return 1.0 / (1.0 + np.exp(-k * (np.asarray(t, float) - t_half)))
+    """F(t) = [1 + exp(-k (t - t_half))]^(-1), the normalised ThT fluorescence trace.
+
+    Evaluated with the logistic function of scipy rather than the literal formula: the protected
+    states have t_half of order 1e8 hours, so the exponent reaches 1e8 and the literal form
+    overflows. The logistic saturates instead, which is the right answer.
+    """
+    from scipy.special import expit
+
+    return expit(k * (np.asarray(t, float) - t_half))
 
 
 def kinetics(pep: Peptide, alpha: float, n: int = N_MODES, **kw) -> dict:

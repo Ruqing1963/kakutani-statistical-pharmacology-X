@@ -1,0 +1,79 @@
+{
+ "prop21": {
+  "A_1": 1.9607843137254901,
+  "B_1": 5.382545174932718,
+  "ratio_BA": 2.7450980392156863,
+  "best_match": 0.00015787393217925327
+ },
+ "identity_gain_max": 136400186.1942694,
+ "estimator_worst": 0.009408911338336767,
+ "prop22": {
+  "two_term_errors": {
+   "0.6_0.35": 0.19080735378835312,
+   "0.6_0.1": 0.022845431878350104,
+   "0.6_0.03": 0.0024237868810226843,
+   "0.72_0.35": 0.35001976164817916,
+   "0.72_0.1": 0.04041975052670201,
+   "0.72_0.03": 0.004213957576784625,
+   "0.85_0.35": 0.47025756078563535,
+   "0.85_0.1": 0.053367310955313704,
+   "0.85_0.03": 0.005510509633658359
+  },
+  "ratio_c": 9.591874097020094
+ },
+ "crossover": {
+  "alpha_th": {
+   "100": 0.13110720558634328,
+   "1000": 0.3142264731313351,
+   "10000": 0.38989067531161775,
+   "100000": 0.42903988964379425,
+   "1000000": 0.45237542965557453,
+   "10000000": 0.46759666235339964
+  },
+  "K_tail_star": 6.548292094950419,
+  "alpha_star": 0.5178868445780167
+ },
+ "abeta": {
+  "dK_hot": 0.42735577746944853,
+  "inverse": [
+   {
+    "target": 2.93,
+    "alpha40": 0.3000060895957496,
+    "d_alpha": 6.089595749603216e-06
+   },
+   {
+    "target": 10.0,
+    "alpha40": 0.3073427551372371,
+    "d_alpha": 0.007342755137237089
+   },
+   {
+    "target": 20.0,
+    "alpha40": 0.31173991001016926,
+    "d_alpha": 0.011739910010169274
+   },
+   {
+    "target": 50.0,
+    "alpha40": 0.3178703575641714,
+    "d_alpha": 0.017870357564171435
+   }
+  ]
+ },
+ "checks": {
+  "B_1 vanishes at p_0 = 1/2": true,
+  "B_1 is odd about 1/2": true,
+  "the cubic coefficient matches the measured remainder to 1e-3": true,
+  "A reduces to Paper I's c^2 at p_0 = 1/2": true,
+  "the identity beats the textbook form by over 1e5 at small eps": true,
+  "the doubling estimator recovers alpha to 0.01": true,
+  "the two-term formula error is O(c^2)": true,
+  "the two-term formula is worse than one term at c = 0.35": true,
+  "K_hot is the same in every tau row": true,
+  "the weak modulator collapses by over 1e4 between N = 1e3 and 1e5": true,
+  "the stabiliser changes by under 10 % over the same range": true,
+  "at N = 1e5 the weak modulator is within 10 % of the untreated rate at N = 1e3": true,
+  "alpha_th(N) increases monotonically": true,
+  "alpha_th(N) stays below alpha_c": true,
+  "alpha* exceeds alpha_c": true,
+  "closing the Abeta gap needs delta alpha < 0.05": true
+ }
+}

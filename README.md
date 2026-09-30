@@ -1,4 +1,4 @@
-# Statistical Pharmacology via Kakutani Dichotomy X
+﻿# Statistical Pharmacology via Kakutani Dichotomy X
 
 **Blocking the Amyloid Nucleation Phase Transition of Intrinsically Disordered Proteins: Tau PHF6\*/PHF6, the Aβ42 Monomer, and the Kinetic Ensemble Stabiliser Design Law**
 
@@ -14,9 +14,11 @@ Paper X of the series applies the α<sub>c</sub> = 1/2 criticality theorem of **
 
 ## Status
 
-Experiment 10 is complete and passes all 9 acceptance criteria (`results/exp10_console_log.txt`, runtime about 4 s). The unit tests pass: 17 model tests plus the 12 inherited package tests.
+Experiment 10 is complete and passes all 11 acceptance criteria (`results/exp10_console_log.txt`, runtime about 5 s). The companion script passes its 16 checks (`results/paper10_tables_summary.txt`). The unit tests pass: 17 model tests plus the 12 inherited package tests.
 
-The manuscript has not been written yet; the DOI badge above is a placeholder.
+The paper is complete: `paper/paper10_ad_tau_abeta_idp_stabilizer.tex` and `.pdf`, 18 pages, compiling with zero errors, zero warnings and zero overfull or underfull boxes. Its numbers come from `code/paper10_compute_tables.py`, which writes `results/paper10_tables_summary.txt`, the table rows `results/paper10_table{1..9}_rows.tex` and `results/paper10_tables.json`.
+
+The DOI badge above is a placeholder.
 
 ## The idea
 
@@ -124,15 +126,19 @@ Aβ42 nucleates **2.93× faster**, from the two extra C-terminal residues alone 
 ├── kakutani_pharma/     # package inherited from Papers VII-IX
 ├── code/
 │   ├── exp10_lib.py                          # ensembles, hot spots, index, estimator, kinetics
-│   └── exp10_ad_tau_abeta_idp_stabilizer.py  # the experiment
+│   ├── exp10_ad_tau_abeta_idp_stabilizer.py  # the experiment
+│   └── paper10_compute_tables.py             # companion: table rows and 16 checks
 ├── tests/
 │   ├── test_exp10.py                         # 17 model tests
 │   ├── test_kakutani_pharma.py               # 8 inherited
 │   └── test_calibration.py                   # 4 inherited
-├── data/                # exp10_scaling.csv, exp10_states.csv,
-│                        # exp10_alpha_scan.csv, exp10_tht.csv
-├── figures/fig10_ad_tau_abeta_idp_stabilizer.{pdf,png}
-├── results/exp10_console_log.txt
+├── data/                # exp10_scaling.csv, exp10_states.csv, exp10_alpha_scan.csv,
+│                        # exp10_tht.csv, exp10_false_positive_trap.csv
+├── figures/             # fig10_ad_tau_abeta_idp_stabilizer.{pdf,png}
+│                        # fig10b_crossover_and_tht_kinetics.{pdf,png}
+├── results/             # exp10_console_log.txt, paper10_tables_summary.txt,
+│                        # paper10_table*_rows.tex, paper10_tables.json
+├── paper/               # paper10_ad_tau_abeta_idp_stabilizer.tex / .pdf
 ├── CITATION.cff, LICENSE, requirements.txt, pyproject.toml, .gitignore, .gitattributes
 └── README.md
 ```
@@ -142,7 +148,9 @@ Aβ42 nucleates **2.93× faster**, from the two extra C-terminal residues alone 
 ```bash
 pip install -r requirements.txt
 python tests/test_exp10.py && python tests/test_kakutani_pharma.py && python tests/test_calibration.py
-python code/exp10_ad_tau_abeta_idp_stabilizer.py   # about 4 seconds; prints OVERALL ACCEPTANCE: PASS
+python code/exp10_ad_tau_abeta_idp_stabilizer.py   # about 5 seconds; prints OVERALL ACCEPTANCE: PASS
+python code/paper10_compute_tables.py             # table rows and 16 checks; prints ALL CHECKS PASS
+cd paper && pdflatex paper10_ad_tau_abeta_idp_stabilizer.tex   # run three times
 ```
 
 ## Funding

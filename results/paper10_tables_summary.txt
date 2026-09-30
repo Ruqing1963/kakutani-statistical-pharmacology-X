@@ -1,0 +1,105 @@
+================================================================================================
+Paper X companion: tables and checks
+================================================================================================
+
+[Table 1] The three disordered segments and their hot spots
+   Tau-MTBR: n_hot = 12, K_hot = 1.2035 -- PHF6* VQIINK (275-280) eps=0.26; PHF6 VQIVYK (306-311) eps=0.3
+    Abeta42: n_hot = 11, K_hot = 1.0906 -- CHC KLVFFA (16-21) eps=0.26; C-term GVVIA (38-42) eps=0.3
+    Abeta40: n_hot =  9, K_hot = 0.6633 -- CHC KLVFFA (16-21) eps=0.26; C-term GVV (38-40) eps=0.18
+
+[Table 2] Proposition 2.1: the cubic term away from p_0 = 1/2
+  A_1(0.15) = 1.9607843137,  B_1(0.15) = 5.3825451749,  B_1/A_1 = 2.745098
+  B_1(1/2) = 0.000e+00 (exactly zero; Paper I's symmetric case)
+        eps         h exact       A_1 eps^2   rel. error   B_1 eps/A_1     ratio
+      1e-01   1.5829723e-02   1.9607843e-02   2.3867e-01    2.7451e-01   0.86945
+      1e-02   1.9091836e-04   1.9607843e-04   2.7028e-02    2.7451e-02   0.98458
+      1e-03   1.9554249e-06   1.9607843e-06   2.7408e-03    2.7451e-03   0.99842
+      1e-04   1.9602463e-08   1.9607843e-08   2.7447e-04    2.7451e-04   0.99984
+      1e-05   1.9607305e-10   1.9607843e-10   2.7451e-05    2.7451e-05   0.99998
+  the measured remainder matches B_1 eps / A_1 to 1.6e-04 in the resolvable window
+
+[Table 3] The no-cancellation identity against the textbook form
+  eps = 1e-03: stable 1.185e-05, textbook 1.185e-05, gain 1x
+  eps = 1e-04: stable 1.187e-07, textbook 1.221e-07, gain 1.029x
+  eps = 1e-05: stable 1.189e-09, textbook 5.771e-07, gain 485.4x
+  eps = 1e-06: stable 1.387e-11, textbook 4.946e-05, gain 3.566e+06x
+  eps = 1e-07: stable 5.763e-11, textbook 7.861e-03, gain 1.364e+08x
+
+[Table 4] The trichotomy in alpha
+   alpha    K(1e2)    K(1e3)     K(1e4)      K(1e5)     Pi(1e5)    slope    a_hat       phase
+    0.25    3.2754   11.9684    41.4360    138.8419   6.695e-31  +0.5188   0.2406    singular
+    0.30    2.4886    7.4637    20.7999     55.5366   8.531e-13  +0.4152   0.2924    singular
+    0.40    1.4925    3.1085     5.8041     10.1703   6.138e-03  +0.2088   0.3956    singular
+    0.45    1.1821    2.1016     3.3112      4.8591   8.752e-02  +0.1064   0.4468    singular
+    0.50    0.9522    1.4756     2.0189      2.5688   2.753e-01  +0.0047   0.4977    singular
+    0.55    0.7809    1.0791     1.3237      1.5196   4.655e-01  -0.0967   0.5483  equivalent
+    0.60    0.6522    0.8225     0.9328      1.0029   6.030e-01  -0.1976   0.5988  equivalent
+    0.72    0.4552    0.5000     0.5166      0.5227   7.671e-01  -0.4389   0.7195  equivalent
+    0.85    0.3417    0.3525     0.3546      0.3551   8.344e-01  -0.6995   0.8498  equivalent
+    1.00    0.2714    0.2736     0.2738      0.2738   8.692e-01  -0.9997   0.9999  equivalent
+  worst |alpha_hat - alpha| over 10 exponents: 0.0094
+
+[Table 5] Proposition 2.2: K_tail(a, inf) = A zeta(2a) - c^3 B_1 zeta(3a) + O(c^4)
+   alpha      c   K_tail(inf)     one term     two term  1-term err  2-term err
+    0.60   0.35     1.1229731    1.3430762    0.9087016    1.96e-01    1.91e-01
+    0.60   0.10     0.1018341    0.1096389    0.0995077    7.66e-02    2.28e-02
+    0.60   0.03     0.0096173    0.0098675    0.0095940    2.60e-02    2.42e-03
+    0.72   0.35     0.5260989    0.6920093    0.3419539    3.15e-01    3.50e-01
+    0.72   0.10     0.0503616    0.0564906    0.0483260    1.22e-01    4.04e-02
+    0.72   0.03     0.0048843    0.0050841    0.0048637    4.09e-02    4.21e-03
+    0.85   0.35     0.3551826    0.4934321    0.1881553    3.89e-01    4.70e-01
+    0.85   0.10     0.0350294    0.0402802    0.0331600    1.50e-01    5.34e-02
+    0.85   0.03     0.0034520    0.0036252    0.0034330    5.02e-02    5.51e-03
+  the two-term error falls 9.6x from c = 0.10 to c = 0.03 (a factor 3.33), so it is O(c^2) in relative terms
+  at c = 0.35 the cubic over-corrects and the two-term formula is worse than the one-term: the series in c is not usable at the physical amplitude
+
+[Table 6] The four tau states at N = 1000
+                 healthy a=0.85 K_hot=1.2035 K_tail=0.3525 K_N=1.5560 Pi=4.5054e-01 equivalent dG=26.09 t_half=5.781e+08 h
+             KMS-Tau-204 a=0.72 K_hot=1.2035 K_tail=0.5000 K_N=1.7036 Pi=4.1835e-01 equivalent dG=25.72 t_half=3.99e+08 h
+                critical a=0.50 K_hot=1.2035 K_tail=1.4756 K_N=2.6791 Pi=2.5645e-01   singular dG=23.27 t_half=3.438e+07 h
+          weak modulator a=0.42 K_hot=1.2035 K_tail=2.6467 K_N=3.8502 Pi=1.4254e-01   singular dG=20.32 t_half=1.812e+06 h
+     hyperphosphorylated a=0.30 K_hot=1.2035 K_tail=7.4637 K_N=8.6672 Pi=1.2699e-02   singular dG=8.22 t_half=10.02 h
+  K_hot takes 1 distinct value(s) across all tau rows: the stabiliser acts on the tail alone
+
+[Table 7] The sub-threshold false-positive trap
+     hyperphosphorylated a=0.30  N=1e3: K=8.6672 t=10.02 h   N=1e5: K=56.7402 t=0.0027 h   collapse 3712x
+          weak modulator a=0.42  N=1e3: K=3.8502 t=1.812e+06 h   N=1e5: K=8.6897 t=9.471 h   collapse 1.913e+05x
+             KMS-Tau-204 a=0.72  N=1e3: K=1.7036 t=3.99e+08 h   N=1e5: K=1.7262 t=3.769e+08 h   collapse 1.058x
+  the weak modulator at N = 1e5 (9.471 h) is as fast as the untreated ensemble at N = 1e3 (10.02 h): ratio 0.945
+
+[Table 8] Finite-mode crossover threshold and the exponent a stabiliser must reach
+  N = 1e2: alpha_th = 0.1311
+  N = 1e3: alpha_th = 0.3142
+  N = 1e4: alpha_th = 0.3899
+  N = 1e5: alpha_th = 0.4290
+  N = 1e6: alpha_th = 0.4524
+  N = 1e7: alpha_th = 0.4676
+  K_N* = 7.751821, K_hot = 1.203529, K_tail* = 6.548292
+  alpha* = 0.51789: above it, t_half > 100 h at every N; alpha_th(N) increases to alpha_c = 1/2 but alpha* > alpha_c
+
+[Table 9] Abeta42 against Abeta40
+  (i) hot spot only, same alpha: dK_hot = 0.4274, t42 = 13.31 h, t40 = 38.96 h, ratio 2.93x
+  (ii) ratio  2.93x needs alpha(Abeta40) = 0.3000 (delta = +0.0000), t40 = 39 h
+  (ii) ratio 10.00x needs alpha(Abeta40) = 0.3073 (delta = +0.0073), t40 = 133.1 h
+  (ii) ratio 20.00x needs alpha(Abeta40) = 0.3117 (delta = +0.0117), t40 = 266.2 h
+  (ii) ratio 50.00x needs alpha(Abeta40) = 0.3179 (delta = +0.0179), t40 = 665.6 h
+
+[Checks]
+  PASS  B_1 vanishes at p_0 = 1/2
+  PASS  B_1 is odd about 1/2
+  PASS  the cubic coefficient matches the measured remainder to 1e-3
+  PASS  A reduces to Paper I's c^2 at p_0 = 1/2
+  PASS  the identity beats the textbook form by over 1e5 at small eps
+  PASS  the doubling estimator recovers alpha to 0.01
+  PASS  the two-term formula error is O(c^2)
+  PASS  the two-term formula is worse than one term at c = 0.35
+  PASS  K_hot is the same in every tau row
+  PASS  the weak modulator collapses by over 1e4 between N = 1e3 and 1e5
+  PASS  the stabiliser changes by under 10 % over the same range
+  PASS  at N = 1e5 the weak modulator is within 10 % of the untreated rate at N = 1e3
+  PASS  alpha_th(N) increases monotonically
+  PASS  alpha_th(N) stays below alpha_c
+  PASS  alpha* exceeds alpha_c
+  PASS  closing the Abeta gap needs delta alpha < 0.05
+
+ALL CHECKS PASS

@@ -37,7 +37,7 @@ import sys
 import time
 
 import numpy as np
-from scipy.optimize import brentq
+from scipy.optimize import brentq  # noqa: F401
 from scipy.special import zeta
 import matplotlib
 
@@ -67,6 +67,9 @@ CSV_SCAN = os.path.join(_repo_dir("data"), "exp10_alpha_scan.csv")
 CSV_THT = os.path.join(_repo_dir("data"), "exp10_tht.csv")
 FIG_PATH = os.path.join(_repo_dir("figures"), "fig10_ad_tau_abeta_idp_stabilizer.png")
 FIG_PATH_PDF = os.path.splitext(FIG_PATH)[0] + ".pdf"
+FIG2_PATH = os.path.join(_repo_dir("figures"), "fig10b_crossover_and_tht_kinetics.png")
+FIG2_PATH_PDF = os.path.splitext(FIG2_PATH)[0] + ".pdf"
+CSV_TRAP = os.path.join(_repo_dir("data"), "exp10_false_positive_trap.csv")
 LOG_PATH = os.path.join(_repo_dir("results"), "exp10_console_log.txt")
 
 ALPHAS_SCALING = (0.25, 0.30, 0.40, 0.45, 0.50, 0.55, 0.60, 0.72, 0.85, 1.00)
@@ -84,7 +87,8 @@ TOL_LN2 = 2e-3               # D_tail at criticality against A ln 2, relative
 SURFACE, INK, INK_2, MUTED, GRID_C, AXIS = "#fcfcfb", "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7"
 BLUE, ORANGE, AQUA, YELLOW, MAGENTA, GREEN, VIOLET, RED = ("#2a78d6", "#eb6834", "#1baf7a", "#eda100",
                                                            "#e87ba4", "#008300", "#4a3aa7", "#e34948")
-S_COLOR = {"healthy": GREEN, "hyperphosphorylated": RED, "KMS-Tau-204": ORANGE, "critical": MUTED}
+S_COLOR = {"healthy": GREEN, "hyperphosphorylated": RED, "weak modulator": YELLOW,
+           "KMS-Tau-204": ORANGE, "critical": MUTED}
 N_COLOR = {100: "#9ec5f4", 1000: "#5598e7", 10_000: "#256abf", 100_000: "#0d366b"}
 plt.rcParams.update({
     "font.family": ["DejaVu Sans", "sans-serif"], "font.size": 9, "axes.unicode_minus": False,
@@ -350,6 +354,50 @@ def run() -> int:
     print(f"  This is the honest form of the claim: alpha_c is an N -> infinity statement. At finite N "
           f"there is no jump, only a crossover, and its position depends on N.")
 
+    # ---------- 4b. the sub-threshold false-positive trap ----------
+    print("\n[4b] The sub-threshold false-positive trap")
+    print("  A modulator that raises the exponent but does not carry it across alpha_c buys a")
+    print("  finite-size reprieve, not a phase change. Compare a weak modulator at alpha_eff = "
+          f"{M.SUBTHRESHOLD.alpha} with KMS-Tau-204 at alpha_eff = {M.STABILISED.alpha}:")
+    print(f"  {'state':>22} {'alpha':>6} {'K_N(1e3)':>10} {'t_half(1e3)':>13} {'K_N(1e5)':>10} "
+          f"{'t_half(1e5)':>13} {'collapse':>10}")
+    trap_rows = []
+    for st in (M.PATHOGENIC, M.SUBTHRESHOLD, M.STABILISED):
+        lo = M.kinetics(M.TAU_MTBR, st.alpha, 1_000)
+        hi = M.kinetics(M.TAU_MTBR, st.alpha, 100_000)
+        trap_rows.append({"state": st.name, "alpha": st.alpha, "K_N_1e3": lo["K_N"],
+                          "t_half_1e3": lo["t_half_h"], "K_N_1e5": hi["K_N"],
+                          "t_half_1e5": hi["t_half_h"],
+                          "collapse": lo["t_half_h"] / hi["t_half_h"]})
+        print(f"  {st.name:>22} {st.alpha:>6.2f} {lo['K_N']:>10.4f} {lo['t_half_h']:>13.4g} "
+              f"{hi['K_N']:>10.4f} {hi['t_half_h']:>13.4g} {lo['t_half_h'] / hi['t_half_h']:>10.3g}x")
+    write_csv(CSV_TRAP, trap_rows)
+    sub_lo, sub_hi = trap_rows[1]["t_half_1e3"], trap_rows[1]["t_half_1e5"]
+    path_lo = trap_rows[0]["t_half_1e3"]
+    print(f"  At the scale of a short-peptide assay (N = 1e3) the weak modulator looks like a "
+          f"complete block: {sub_lo:.3g} h.")
+    print(f"  At the scale of a full-length protein or a cellular condensate (N = 1e5) the series "
+          f"diverges and it collapses to {sub_hi:.3g} h, as fast as the untreated "
+          f"{path_lo:.3g} h at N = 1e3.")
+    print(f"  KMS-Tau-204 changes by a factor {trap_rows[2]['collapse']:.3f} over the same range, "
+          f"because above alpha_c the sum is bounded.")
+
+    a_star = M.safe_exponent(M.TAU_MTBR, T_REF_HOURS)
+    k_star_n = M.k_n_for_half_time(T_REF_HOURS)
+    k_star_tail = k_star_n - float(M.hot_spot_terms(M.TAU_MTBR).sum())
+    print(f"\n  The exponent a stabiliser must actually reach: K_N(t_half = {T_REF_HOURS:.0f} h) = "
+          f"{k_star_n:.4f}, so K_tail* = {k_star_tail:.4f}, and")
+    print(f"  alpha* = {a_star:.5f} is where K_tail(alpha, infinity) meets it. For every "
+          f"alpha >= {a_star:.4f} the half-time exceeds {T_REF_HOURS:.0f} h at ANY N;")
+    print(f"  below it the protection is finite-size only. Note alpha* > alpha_c: crossing the "
+          f"critical exponent is necessary but not sufficient.")
+    passed = (sub_lo > 1e5 and sub_hi < 24.0 and abs(trap_rows[2]["collapse"] - 1.0) < 0.15
+              and M.ALPHA_C < a_star < M.STABILISED.alpha)
+    ok_all &= passed
+    print(f"  Acceptance: the sub-threshold modulator loses a factor {sub_lo / sub_hi:.3g} between "
+          f"N = 1e3 and 1e5 while the stabiliser loses {trap_rows[2]['collapse']:.3f}, and "
+          f"alpha_c < alpha* = {a_star:.4f} < {M.STABILISED.alpha}  {'PASS' if passed else 'FAIL'}")
+
     # ---------- 5. Abeta42 against Abeta40 ----------
     print("\n[5] Abeta42 against Abeta40: the C-terminal hot spot alone")
     a42, a40 = by[("Abeta42", M.PATHOGENIC.name)], by[("Abeta40", M.PATHOGENIC.name)]
@@ -364,8 +412,36 @@ def run() -> int:
     ok_all &= passed
     print(f"  Acceptance: the C-terminal hot spot alone separates the two peptides in the right "
           f"direction, by {ratio:.2f}x  {'PASS' if passed else 'FAIL'}")
-    print(f"  The model attributes none of this to the tail, so it under-predicts the experimental "
-          f"gap; Abeta42 also differs from Abeta40 in its long-range contact order.")
+
+    print(f"\n  Two-factor decomposition. Factor (i) above holds the tail exponent fixed and gets "
+          f"{ratio:.2f}x, well short of the")
+    print(f"  order of magnitude that is measured. Factor (ii) asks how much of the exponent the two "
+          f"extra residues would have")
+    print(f"  to buy, by stabilising the C-terminal turn, to close the gap. Inverting the model:")
+    print(f"  {'target ratio':>13} {'alpha(Abeta40)':>15} {'delta alpha':>12} {'t_half(Abeta40)':>16}")
+    ab_rows = []
+    for target in (2.93, 10.0, 20.0, 50.0):
+        g = lambda a40: M.kinetics(M.ABETA40, a40)["t_half_h"] / a42["t_half_h"] - target
+        try:
+            a40v = float(brentq(g, 0.2999, 0.45, xtol=1e-8))
+        except ValueError:
+            continue
+        t40v = M.kinetics(M.ABETA40, a40v)["t_half_h"]
+        ab_rows.append({"target": target, "alpha_40": a40v, "d_alpha": a40v - M.PATHOGENIC.alpha,
+                        "t_half_40": t40v})
+        print(f"  {target:>12.2f}x {a40v:>15.4f} {a40v - M.PATHOGENIC.alpha:>+12.4f} "
+              f"{t40v:>15.4g} h")
+    d50 = [r for r in ab_rows if r["target"] == 50.0][0]["d_alpha"]
+    print(f"  So the experimentally reported order-of-magnitude separation needs the two residues to "
+          f"raise the exponent by")
+    print(f"  only {ab_rows[1]['d_alpha']:.4f} to {d50:.4f}, that is by {100 * d50 / M.PATHOGENIC.alpha:.1f}% "
+          f"at most. The claim is modest, and it is testable:")
+    print(f"  it predicts a small but definite difference in the contact-order statistics of the two "
+          f"monomers, not only at the C-terminus.")
+    passed = all(0.0 < r["d_alpha"] < 0.05 for r in ab_rows[1:])
+    ok_all &= passed
+    print(f"  Acceptance: closing the gap requires delta alpha < 0.05 in every case, so the tail "
+          f"contribution needed is small  {'PASS' if passed else 'FAIL'}")
 
     # ---------- 6. ThT traces ----------
     print("\n[6] ThT nucleation traces")
@@ -392,8 +468,9 @@ def run() -> int:
 
     # ---------- 7. figure ----------
     print("\n[7] Figure")
-    fig, axes = plt.subplots(2, 3, figsize=(15.6, 8.6))
-    axA, axB, axC, axD, axE, axF = axes.ravel()
+    fig, axes = plt.subplots(2, 2, figsize=(11.2, 8.6))
+    axA, axB, axC, axD = axes.ravel()
+    fig2, (axE, axF) = plt.subplots(1, 2, figsize=(11.2, 4.9))
 
     # A: the excess spectrum
     i = np.arange(1, M.N_MODES + 1)
@@ -404,8 +481,9 @@ def run() -> int:
                label=r"critical, $\alpha$ = 1/2")
     for k, h in enumerate(M.TAU_MTBR.hot_spots):
         axA.axhline(h.eps, color=(VIOLET if k == 0 else MAGENTA), lw=1.1, ls=":")
-        axA.text(1.25, h.eps * (1.10 if k else 0.74), f"{h.name} {h.sequence}", fontsize=7.5,
-                 color=(VIOLET if k == 0 else MAGENTA), fontweight="bold")
+        # parked on the right, where every curve has already dropped two decades below
+        axA.text(900, h.eps * (1.09 if k else 0.78), f"{h.name} {h.sequence}", fontsize=7.5,
+                 ha="right", color=(VIOLET if k == 0 else MAGENTA), fontweight="bold")
     axA.set_xlabel("contact mode $i$ (by range)")
     axA.set_ylabel(r"excess $\beta$ propensity $\epsilon_i$")
     axA.set_title(r"A  Excess spectrum $\epsilon_i = c\,i^{-\alpha}$")
@@ -463,31 +541,46 @@ def run() -> int:
                         linewidth=0.6, zorder=5)
     axE.axvline(M.ALPHA_C, color=AXIS, lw=1.0, ls="--")
     axE.axhline(T_REF_HOURS, color=AQUA, lw=1.0, ls=":")
-    axE.text(M.ALPHA_C + 0.012, 1e-1, r"$\alpha_c = 1/2$", fontsize=8, color=INK_2)
+    axE.text(M.ALPHA_C + 0.015, 3e3, r"$\alpha_c = 1/2$", fontsize=8, color=INK_2)
     axE.text(0.90, T_REF_HOURS * 1.8, f"{T_REF_HOURS:.0f} h assay", fontsize=7.5, color=AQUA, ha="right")
-    for st in (M.PATHOGENIC, M.STABILISED):
-        axE.scatter([st.alpha], [by[("Tau-MTBR", st.name)]["t_half_h"]], s=140, marker="*",
-                    color=S_COLOR[st.name], edgecolor=INK, linewidth=0.7, zorder=6)
+    # the three named exponents, marked on the N = 1e3 curve where an assay would see them
+    offs_e = {M.PATHOGENIC.name: (-7, -14, "right"), M.SUBTHRESHOLD.name: (-7, 9, "right"),
+              M.STABILISED.name: (-8, -18, "right")}
+    for st in (M.PATHOGENIC, M.SUBTHRESHOLD, M.STABILISED):
+        y = M.kinetics(M.TAU_MTBR, st.alpha, 1_000)["t_half_h"]
+        dx, dy, ha = offs_e[st.name]
+        axE.scatter([st.alpha], [y], s=150, marker="*", color=S_COLOR[st.name], edgecolor=INK,
+                    linewidth=0.7, zorder=6)
+        axE.annotate(rf"$\alpha$ = {st.alpha}", (st.alpha, y), textcoords="offset points",
+                     xytext=(dx, dy), ha=ha, fontsize=7.5, color=INK, fontweight="bold", zorder=7)
+    axE.axvspan(M.SUBTHRESHOLD.alpha - 0.004, M.ALPHA_C, color=RED, alpha=0.07, zorder=0)
+    axE.text(0.46, 1e-3, "sub-threshold\ntrap", fontsize=7.5, color=RED, ha="center",
+             fontweight="bold")
     axE.set_xlabel(r"effective tail exponent $\alpha_{\mathrm{eff}}$")
     axE.set_ylabel(r"$t_{1/2}$ (hours)")
-    axE.set_title(r"E  Crossover sharpens and moves toward $\alpha_c$ with $N$")
+    axE.set_title(r"A  Crossover sharpens and moves toward $\alpha_c$ with $N$")
     axE.legend(loc="lower right", fontsize=8)
     tidy(axE)
 
     # F: ThT
-    for pep_name, state_name, col, ls in (("Tau-MTBR", M.PATHOGENIC.name, RED, "-"),
-                                          ("Abeta42", M.PATHOGENIC.name, VIOLET, "-"),
-                                          ("Abeta40", M.PATHOGENIC.name, BLUE, "-"),
-                                          ("Tau-MTBR", M.STABILISED.name, ORANGE, "-"),
-                                          ("Tau-MTBR", M.HEALTHY.name, GREEN, "--")):
-        r = by[(pep_name, state_name)]
-        lab = f"{pep_name}, {state_name}"
-        axF.plot(t, M.tht_curve(t, r["t_half_h"]), color=col, ls=ls, lw=1.7, label=lab)
+    tht_spec = (("Tau-MTBR", M.PATHOGENIC.name, 1_000, RED, "-", "tau, untreated"),
+                ("Abeta42", M.PATHOGENIC.name, 1_000, VIOLET, "-", r"A$\beta_{42}$, untreated"),
+                ("Abeta40", M.PATHOGENIC.name, 1_000, BLUE, "-", r"A$\beta_{40}$, untreated"),
+                ("Tau-MTBR", M.SUBTHRESHOLD.name, 100_000, YELLOW, "-",
+                 r"tau, weak modulator ($N=10^5$)"),
+                ("Tau-MTBR", M.STABILISED.name, 1_000, ORANGE, "-", "tau, KMS-Tau-204"),
+                ("Tau-MTBR", M.HEALTHY.name, 1_000, GREEN, "--", "tau, healthy"))
+    for pep_name, state_name, n, col, ls, lab in tht_spec:
+        st = next(s for s in (M.HEALTHY, M.PATHOGENIC, M.SUBTHRESHOLD, M.STABILISED)
+                  if s.name == state_name)
+        th = M.kinetics(M.TAU_MTBR if pep_name == "Tau-MTBR" else
+                        (M.ABETA42 if pep_name == "Abeta42" else M.ABETA40), st.alpha, n)["t_half_h"]
+        axF.plot(t, M.tht_curve(t, th), color=col, ls=ls, lw=1.7, label=lab)
     axF.set_xlim(0, 120)
     axF.set_ylim(-0.03, 1.08)
     axF.set_xlabel("time (hours)")
     axF.set_ylabel("normalised ThT fluorescence $F(t)$")
-    axF.set_title("F  ThT traces; stabilised and healthy stay at zero")
+    axF.set_title("B  ThT traces; the weak modulator only looks protective")
     axF.legend(loc="center right", fontsize=7.5)
     tidy(axF)
 
@@ -495,9 +588,14 @@ def run() -> int:
     fig.savefig(FIG_PATH, dpi=200)
     fig.savefig(FIG_PATH_PDF)
     plt.close(fig)
+    fig2.tight_layout()
+    fig2.savefig(FIG2_PATH, dpi=200)
+    fig2.savefig(FIG2_PATH_PDF)
+    plt.close(fig2)
 
     print("\nOutput files (relative to the repository root):")
-    for pth in (CSV_SCALING, CSV_STATES, CSV_SCAN, CSV_THT, FIG_PATH, FIG_PATH_PDF, LOG_PATH):
+    for pth in (CSV_SCALING, CSV_STATES, CSV_SCAN, CSV_THT, CSV_TRAP, FIG_PATH, FIG_PATH_PDF,
+                FIG2_PATH, FIG2_PATH_PDF, LOG_PATH):
         print("  ", os.path.relpath(pth, ROOT).replace(os.sep, "/"))
     print(f"\nruntime {time.time() - t0:.1f} s")
     print("OVERALL ACCEPTANCE:", "PASS" if ok_all else "FAIL")

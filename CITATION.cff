@@ -1,0 +1,64 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite it as below."
+title: "Statistical Pharmacology via Kakutani Dichotomy X: Blocking the Amyloid Nucleation Phase Transition of Intrinsically Disordered Proteins, Tau PHF6*/PHF6, the Abeta42 Monomer, and the Kinetic Ensemble Stabiliser Design Law"
+type: software
+authors:
+  - family-names: Chen
+    given-names: Zhengyi
+    affiliation: "Guangxi Key Laboratory of Drug Discovery and Optimization, School of Pharmacy, Guilin Medical University, Guilin 541199, P. R. China"
+    email: chenzhengyi@glmc.edu.cn
+  - family-names: Chen
+    given-names: Ruqing
+    affiliation: "GUT Geoservice Inc., Montreal, Québec, Canada"
+    email: ruqing@hotmail.com
+date-released: 2026-09-30
+version: 0.1.0
+license: MIT
+keywords:
+  - Kakutani dichotomy
+  - marginal drug Kakutani index
+  - intrinsically disordered protein
+  - tau
+  - PHF6
+  - amyloid beta 42
+  - amyloid nucleation
+  - phase transition
+  - critical exponent
+  - Hellinger distance
+  - kinetic ensemble stabiliser
+  - fuzzy binding
+  - thioflavin T
+  - Alzheimer's disease
+  - computational pharmacology
+preferred-citation:
+  type: article
+  title: "Statistical Pharmacology via Kakutani Dichotomy X: Blocking the Amyloid Nucleation Phase Transition of Intrinsically Disordered Proteins, Tau PHF6*/PHF6, the Abeta42 Monomer, and the Kinetic Ensemble Stabiliser Design Law"
+  authors:
+    - family-names: Chen
+      given-names: Zhengyi
+      affiliation: "Guangxi Key Laboratory of Drug Discovery and Optimization, School of Pharmacy, Guilin Medical University, Guilin 541199, P. R. China"
+    - family-names: Chen
+      given-names: Ruqing
+      affiliation: "GUT Geoservice Inc., Montreal, Québec, Canada"
+  year: 2026
+  publisher:
+    name: Zenodo
+references:
+  - type: article
+    title: "Statistical Pharmacology via Kakutani Dichotomy I: the marginal drug Kakutani index and the alpha_c = 1/2 criticality theorem in high-dimensional conformational ensembles"
+    authors:
+      - family-names: Chen
+        given-names: Zhengyi
+      - family-names: Chen
+        given-names: Ruqing
+    year: 2026
+    doi: 10.5281/zenodo.23018827
+  - type: article
+    title: "Statistical Pharmacology via Kakutani Dichotomy IX: Notch-Sparing Gamma-Secretase Modulators for Alzheimer's Disease, Schur-Complement Confinement of the Catalytic Block, and a Cone-Geodesic Model of Processive Trimming"
+    authors:
+      - family-names: Chen
+        given-names: Zhengyi
+      - family-names: Chen
+        given-names: Ruqing
+    year: 2026
+    doi: 10.5281/zenodo.23051518

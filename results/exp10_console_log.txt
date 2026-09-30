@@ -149,5 +149,5 @@ Output files (relative to the repository root):
    figures/fig10b_crossover_and_tht_kinetics.pdf
    results/exp10_console_log.txt
 
-runtime 5.4 s
+runtime 5.0 s
 OVERALL ACCEPTANCE: PASS

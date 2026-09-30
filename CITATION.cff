@@ -1,4 +1,4 @@
-cff-version: 1.2.0
+﻿cff-version: 1.2.0
 message: "If you use this code or data, please cite it as below."
 title: "Statistical Pharmacology via Kakutani Dichotomy X: Blocking the Amyloid Nucleation Phase Transition of Intrinsically Disordered Proteins, Tau PHF6*/PHF6, the Abeta42 Monomer, and the Kinetic Ensemble Stabiliser Design Law"
 type: software
@@ -12,8 +12,10 @@ authors:
     affiliation: "GUT Geoservice Inc., Montreal, Québec, Canada"
     email: ruqing@hotmail.com
 date-released: 2026-09-30
-version: 0.1.0
+version: 1.0.0
+doi: 10.5281/zenodo.23068156
 license: MIT
+repository-code: "https://github.com/Ruqing1963/kakutani-statistical-pharmacology-X"
 keywords:
   - Kakutani dichotomy
   - marginal drug Kakutani index
@@ -43,6 +45,9 @@ preferred-citation:
   year: 2026
   publisher:
     name: Zenodo
+  doi: 10.5281/zenodo.23068156
+  url: "https://doi.org/10.5281/zenodo.23068156"
+  repository-code: "https://github.com/Ruqing1963/kakutani-statistical-pharmacology-X"
 references:
   - type: article
     title: "Statistical Pharmacology via Kakutani Dichotomy I: the marginal drug Kakutani index and the alpha_c = 1/2 criticality theorem in high-dimensional conformational ensembles"

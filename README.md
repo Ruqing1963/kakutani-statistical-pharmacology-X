@@ -2,8 +2,7 @@
 
 **Blocking the Amyloid Nucleation Phase Transition of Intrinsically Disordered Proteins: Tau PHF6\*/PHF6, the Aβ42 Monomer, and the Kinetic Ensemble Stabiliser Design Law**
 
-<!-- TODO: replace with the reserved Zenodo DOI -->
-[![DOI](https://img.shields.io/badge/DOI-reserved%2C%20pending-lightgrey.svg)](https://doi.org/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23068156.svg)](https://doi.org/10.5281/zenodo.23068156)
 
 Zhengyi Chen<sup>1</sup>, Ruqing Chen<sup>2</sup>
 
@@ -18,7 +17,7 @@ Experiment 10 is complete and passes all 11 acceptance criteria (`results/exp10_
 
 The paper is complete: `paper/paper10_ad_tau_abeta_idp_stabilizer.tex` and `.pdf`, 18 pages, compiling with zero errors, zero warnings and zero overfull or underfull boxes. Its numbers come from `code/paper10_compute_tables.py`, which writes `results/paper10_tables_summary.txt`, the table rows `results/paper10_table{1..9}_rows.tex` and `results/paper10_tables.json`.
 
-The DOI badge above is a placeholder.
+DOI: [10.5281/zenodo.23068156](https://doi.org/10.5281/zenodo.23068156). Repository: [Ruqing1963/kakutani-statistical-pharmacology-X](https://github.com/Ruqing1963/kakutani-statistical-pharmacology-X).
 
 ## The idea
 

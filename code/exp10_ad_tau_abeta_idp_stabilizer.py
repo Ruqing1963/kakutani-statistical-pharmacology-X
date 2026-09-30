@@ -544,18 +544,27 @@ def run() -> int:
     axE.text(M.ALPHA_C + 0.015, 3e3, r"$\alpha_c = 1/2$", fontsize=8, color=INK_2)
     axE.text(0.90, T_REF_HOURS * 1.8, f"{T_REF_HOURS:.0f} h assay", fontsize=7.5, color=AQUA, ha="right")
     # the three named exponents, marked on the N = 1e3 curve where an assay would see them
-    offs_e = {M.PATHOGENIC.name: (-7, -14, "right"), M.SUBTHRESHOLD.name: (-7, 9, "right"),
-              M.STABILISED.name: (-8, -18, "right")}
+    # the stabilised star sits where four curves converge, so its label is parked below and right
+    # of them on a leader, where every curve has already flattened above 1e8
+    lab_bbox = dict(boxstyle="round,pad=0.2", facecolor=SURFACE, edgecolor="none", alpha=0.85)
+    offs_e = {M.PATHOGENIC.name: (-7, -14, "right", False),
+              M.SUBTHRESHOLD.name: (-7, 9, "right", False),
+              M.STABILISED.name: (20, -30, "left", True)}
     for st in (M.PATHOGENIC, M.SUBTHRESHOLD, M.STABILISED):
         y = M.kinetics(M.TAU_MTBR, st.alpha, 1_000)["t_half_h"]
-        dx, dy, ha = offs_e[st.name]
+        dx, dy, ha, leader = offs_e[st.name]
         axE.scatter([st.alpha], [y], s=150, marker="*", color=S_COLOR[st.name], edgecolor=INK,
                     linewidth=0.7, zorder=6)
         axE.annotate(rf"$\alpha$ = {st.alpha}", (st.alpha, y), textcoords="offset points",
-                     xytext=(dx, dy), ha=ha, fontsize=7.5, color=INK, fontweight="bold", zorder=7)
+                     xytext=(dx, dy), ha=ha, fontsize=7.5, color=INK, fontweight="bold", zorder=7,
+                     bbox=lab_bbox if leader else None,
+                     arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.7, shrinkA=1, shrinkB=8)
+                     if leader else None)
     axE.axvspan(M.SUBTHRESHOLD.alpha - 0.004, M.ALPHA_C, color=RED, alpha=0.07, zorder=0)
-    axE.text(0.46, 1e-3, "sub-threshold\ntrap", fontsize=7.5, color=RED, ha="center",
-             fontweight="bold")
+    # below the N = 1e5 attempt-time floor, which only extends to alpha ~ 0.39, and clear of the
+    # alpha_c rule at 0.5
+    axE.text(0.457, 8e-2, "sub-threshold\ntrap", fontsize=7.5, color=RED, ha="center",
+             va="center", fontweight="bold", zorder=7, bbox=lab_bbox)
     axE.set_xlabel(r"effective tail exponent $\alpha_{\mathrm{eff}}$")
     axE.set_ylabel(r"$t_{1/2}$ (hours)")
     axE.set_title(r"A  Crossover sharpens and moves toward $\alpha_c$ with $N$")
